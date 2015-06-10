@@ -72,12 +72,12 @@ function GetMatPropertiesStringList (item)
     append(list,"Temperature: "..deg_C.."\248C ("..deg_U.."U)")
     append(list,"Color: "..df.global.world.raws.language.colors[mat.state_color.Solid].name)
     local function GetStrainDescription (number)
-        if tonumber(number) >= 50000 then return "very elastic"
-        elseif tonumber(number) < 50000 then return "elastic"
-        elseif tonumber(number) < 15001 then return "medium"
-        elseif tonumber(number) < 5001 then return "stiff"
+        if tonumber(number) < 1 then return "crystalline"
         elseif tonumber(number) < 1000 then return "very stiff"
-        elseif tonumber(number) < 1 then return "crystalline"
+        elseif tonumber(number) < 5001 then return "stiff"
+        elseif tonumber(number) < 15001 then return "medium"
+        elseif tonumber(number) < 50000 then return "elastic"
+        elseif tonumber(number) >= 50000 then return "very elastic"
         else return "unknown" end
     end
     local mat_properties_for = {"BAR", "SMALLGEM", "BOULDER", "ROUGH",
@@ -233,8 +233,7 @@ end
 function GetReactionProduct (inmat, reaction)
     for k,v in pairs (inmat.reaction_product.id) do
         if v.value == reaction then
-            return {inmat.reaction_product.material.mat_type[k],
-                    inmat.reaction_product.material.mat_index[k]}
+			return inmat.reaction_product.material.mat_type[k],inmat.reaction_product.material.mat_index[k]
         end
     end
 end
@@ -290,8 +289,8 @@ function GetFoodPropertiesStringList (item)
     if item._type == df.item_plantst and GetMatPlant (item) then
         local plant = GetMatPlant (item)
         for k,v in pairs (plant.material_defs) do
-            if v ~= -1 and string.find (k,"type_") and not string.find (k,"type_basic")
-                    or string.find (k,"type_seed") or string.find (k,"type_tree") then
+            if v ~= -1 and string.find (k,"type_") and not (string.find (k,"type_basic")
+                    or string.find (k,"type_seed") or string.find (k,"type_tree")) then
                 local targetmat = dfhack.matinfo.decode (v,
                     plant.material_defs["idx_"..string.match (k,"type_(.+)")])
                 local state = "Liquid"
